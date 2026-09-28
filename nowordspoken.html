@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة ولا كلمة - اللوحة التفاعلية</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        teamA: '#3B82F6', // Blue
+                        teamB: '#EC4899', // Pink/Red
+                        accent: '#8B5CF6', // Purple accent
+                        darkBg: '#0F172A', // Slate 900
+                        cardBg: '#1E293B', // Slate 800
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0F172A;
+            color: #F8FAFC;
+            user-select: none;
+        }
+
+        /* Custom glowing effects */
+        .glow-a {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.35);
+        }
+        .glow-b {
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.35);
+        }
+        .glow-accent {
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
+        }
+
+        /* Card flip / reveal styles */
+        .blur-card {
+            filter: blur(12px);
+            transition: all 0.3s ease;
+        }
+        .unblur-card {
+            filter: blur(0px);
+            transition: all 0.3s ease;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0F172A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden bg-slate-950 text-slate-100">
+
+    <!-- Header / Navbar -->
+    <header class="w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white font-black text-xl shadow-lg">
+                    🤫
+                </div>
+                <div>
+                    <h1 class="text-xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
+                        لعبة ولا كلمة
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block">التحدي التفاعلي للتمثيل الصامت</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <button onclick="toggleRulesModal()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs sm:text-sm font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-amber-400"></i>
+                    <span>قواعد اللعبة</span>
+                </button>
+                <button onclick="resetWholeGame()" class="px-3 py-2 rounded-lg bg-red-900/30 hover:bg-red-900/50 border border-red-800/50 text-red-300 text-xs sm:text-sm font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span class="hidden sm:inline">إعادة ضبط</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto w-full px-4 py-6 flex-grow flex flex-col gap-6">
+
+        <!-- Scoreboard & Turn Controller -->
+        <section class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+            
+            <!-- Team 1 Card -->
+            <div id="cardTeamA" class="md:col-span-5 bg-slate-900/90 border-2 border-blue-500/30 rounded-2xl p-5 transition-all duration-300 relative overflow-hidden">
+                <div id="activeIndicatorA" class="absolute top-0 right-0 left-0 h-1.5 bg-blue-500 hidden"></div>
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <input type="text" id="nameTeamA" value="الفريق الأول" class="bg-transparent text-lg font-bold text-blue-400 focus:outline-none focus:border-b border-blue-400 w-36 sm:w-44" onchange="updateTeamNames()">
+                        <span class="block text-xs text-slate-400 mt-0.5">انقر لتعديل الاسم</span>
+                    </div>
+                    <button onclick="setTurn('A')" id="btnTurnA" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-950 text-blue-300 border border-blue-700 hover:bg-blue-900 transition">
+                        دور هذا الفريق
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeScore('A', -1)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-red-400 font-bold text-xl flex items-center justify-center border border-slate-700 transition">
+                            -
+                        </button>
+                        <button onclick="changeScore('A', 1)" class="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xl flex items-center justify-center shadow-lg shadow-blue-600/30 transition">
+                            +
+                        </button>
+                    </div>
+                    <div class="text-right">
+                        <span id="scoreA" class="text-5xl font-black text-white tracking-wider">0</span>
+                        <span class="text-xs text-slate-400 block">نقاط</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Status / Center Info -->
+            <div class="md:col-span-2 flex flex-col items-center justify-center text-center p-2 bg-slate-900/40 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-semibold mb-1">الجولة الحالية</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="changeRound(-1)" class="text-slate-400 hover:text-white px-2"><i class="fa-solid fa-minus text-xs"></i></button>
+                    <span id="currentRound" class="text-2xl font-black text-amber-400">1</span>
+                    <button onclick="changeRound(1)" class="text-slate-400 hover:text-white px-2"><i class="fa-solid fa-plus text-xs"></i></button>
+                </div>
+                <div id="turnBadge" class="mt-2 text-xs px-3 py-1 rounded-full font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                    دور: الفريق الأول
+                </div>
+            </div>
+
+            <!-- Team 2 Card -->
+            <div id="cardTeamB" class="md:col-span-5 bg-slate-900/90 border-2 border-pink-500/20 rounded-2xl p-5 transition-all duration-300 relative overflow-hidden">
+                <div id="activeIndicatorB" class="absolute top-0 right-0 left-0 h-1.5 bg-pink-500 hidden"></div>
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <input type="text" id="nameTeamB" value="الفريق الثاني" class="bg-transparent text-lg font-bold text-pink-400 focus:outline-none focus:border-b border-pink-400 w-36 sm:w-44" onchange="updateTeamNames()">
+                        <span class="block text-xs text-slate-400 mt-0.5">انقر لتعديل الاسم</span>
+                    </div>
+                    <button onclick="setTurn('B')" id="btnTurnB" class="px-3 py-1 rounded-full text-xs font-bold bg-pink-950 text-pink-300 border border-pink-700 hover:bg-pink-900 transition">
+                        دور هذا الفريق
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeScore('B', -1)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-red-400 font-bold text-xl flex items-center justify-center border border-slate-700 transition">
+                            -
+                        </button>
+                        <button onclick="changeScore('B', 1)" class="w-10 h-10 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xl flex items-center justify-center shadow-lg shadow-pink-600/30 transition">
+                            +
+                        </button>
+                    </div>
+                    <div class="text-right">
+                        <span id="scoreB" class="text-5xl font-black text-white tracking-wider">0</span>
+                        <span class="text-xs text-slate-400 block">نقاط</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Card Generator Column -->
+            <div class="lg:col-span-7 flex flex-col gap-4">
+                
+                <!-- Category and Difficulty Filters -->
+                <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 flex flex-wrap gap-3 items-center justify-between">
+                    <!-- Category Select -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <label class="text-xs font-bold text-slate-400 whitespace-nowrap"><i class="fa-solid fa-tags text-purple-400 ml-1"></i>القسم:</label>
+                        <select id="categorySelect" class="bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-3 py-2 w-full focus:outline-none focus:border-purple-500">
+                            <option value="all">🔀 كل الأقسام</option>
+                            <option value="movies">🎬 أفلام ومسلسلات</option>
+                            <option value="proverbs">📜 أمثال وأقوال</option>
+                            <option value="jobs">👷‍♂️ مهن وشخصيات</option>
+                            <option value="actions">🏃‍♂️ أفعال وأنشطة</option>
+                            <option value="objects">📦 أشياء وأدوات</option>
+                        </select>
+                    </div>
+
+                    <!-- Difficulty Selector -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <label class="text-xs font-bold text-slate-400 whitespace-nowrap"><i class="fa-solid fa-layer-group text-amber-400 ml-1"></i>الصعوبة:</label>
+                        <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs font-bold w-full sm:w-auto justify-center">
+                            <button onclick="setDifficulty('easy')" id="diffEasy" class="px-3 py-1 rounded-lg text-emerald-400 transition">سهل</button>
+                            <button onclick="setDifficulty('medium')" id="diffMedium" class="px-3 py-1 rounded-lg text-amber-400 transition bg-slate-700 shadow">متوسط</button>
+                            <button onclick="setDifficulty('hard')" id="diffHard" class="px-3 py-1 rounded-lg text-rose-400 transition">صعب</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Word Card Display Box -->
+                <div class="bg-gradient-to-b from-slate-900 to-slate-900/90 rounded-3xl p-6 border border-slate-800 relative flex flex-col items-center justify-center min-h-[300px] shadow-2xl text-center overflow-hidden">
+                    
+                    <div id="cardBadge" class="absolute top-4 right-4 bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs px-3 py-1 rounded-full font-bold">
+                        جاهز للسحب
+                    </div>
+
+                    <div id="difficultyBadge" class="absolute top-4 left-4 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs px-3 py-1 rounded-full font-bold">
+                        متوسط
+                    </div>
+
+                    <!-- Hidden Blur Overlay Container -->
+                    <div id="wordContainer" class="w-full my-auto py-6 flex flex-col items-center justify-center cursor-pointer transition-all" onclick="toggleBlur()">
+                        
+                        <div id="blurWrapper" class="blur-card transition-all duration-300 select-none py-4 px-6 rounded-2xl">
+                            <h2 id="cardWord" class="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight mb-2">
+                                انقر "بطاقة جديدة"
+                            </h2>
+                            <p id="cardHint" class="text-slate-400 text-sm font-semibold">
+                                اضغط للحصول على الكلمة المراد تمثيلها
+                            </p>
+                        </div>
+
+                        <!-- Blur Toggle Button Overlay -->
+                        <div id="blurOverlayText" class="mt-4 inline-flex items-center gap-2 text-xs font-bold bg-slate-800/80 hover:bg-slate-700 text-amber-400 px-4 py-2 rounded-full border border-slate-700 backdrop-blur shadow-md">
+                            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                            <span id="eyeText">اضغط لإظهار الكلمة (للممثل فقط)</span>
+                        </div>
+                    </div>
+
+                    <!-- Card Action Buttons -->
+                    <div class="w-full flex gap-3 mt-4">
+                        <button onclick="drawNewCard()" class="flex-1 bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 transition flex items-center justify-center gap-2 text-base sm:text-lg">
+                            <i class="fa-solid fa-dice text-xl"></i>
+                            <span>بطاقة جديدة</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Timer & Controls Column -->
+            <div class="lg:col-span-5 flex flex-col justify-between gap-4">
+                
+                <div class="bg-slate-900/80 rounded-3xl p-6 border border-slate-800 flex flex-col items-center justify-between h-full shadow-xl">
+                    
+                    <div class="w-full flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-stopwatch text-indigo-400"></i> المؤقت الزمـني
+                        </span>
+                        
+                        <!-- Preset Duration Selector -->
+                        <div class="flex gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 text-xs">
+                            <button onclick="setTimerDuration(60)" class="px-2.5 py-1 rounded font-bold text-slate-300 hover:bg-slate-700 durationBtn" data-time="60">60ث</button>
+                            <button onclick="setTimerDuration(90)" class="px-2.5 py-1 rounded font-bold text-slate-300 hover:bg-slate-700 durationBtn active-duration bg-indigo-600 text-white" data-time="90">90ث</button>
+                            <button onclick="setTimerDuration(120)" class="px-2.5 py-1 rounded font-bold text-slate-300 hover:bg-slate-700 durationBtn" data-time="120">120ث</button>
+                        </div>
+                    </div>
+
+                    <!-- Circular Progress & Digital Display -->
+                    <div class="relative w-48 h-48 my-4 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <!-- Background Track -->
+                            <circle cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" class="text-slate-800" fill="transparent" />
+                            <!-- Progress Bar -->
+                            <circle id="timerProgress" cx="50" cy="50" r="42" stroke="currentColor" stroke-width="8" class="text-indigo-500 transition-all duration-300" fill="transparent" stroke-dasharray="263.89" stroke-dashoffset="0" stroke-linecap="round" />
+                        </svg>
+
+                        <div class="absolute flex flex-col items-center">
+                            <span id="timerDisplay" class="text-5xl font-black tracking-tight text-white font-mono">01:30</span>
+                            <span id="timerStatus" class="text-xs font-semibold text-slate-400 mt-1">جاهز للبدء</span>
+                        </div>
+                    </div>
+
+                    <!-- Timer Control Buttons -->
+                    <div class="w-full flex flex-col gap-3">
+                        <div class="flex items-center gap-2">
+                            <button onclick="adjustTime(-10)" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition">
+                                -10ث
+                            </button>
+                            
+                            <button id="btnStartPause" onclick="toggleTimer()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 text-base">
+                                <i id="playIcon" class="fa-solid fa-play"></i>
+                                <span id="playText">تشغيل</span>
+                            </button>
+
+                            <button onclick="adjustTime(10)" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition">
+                                +10ث
+                            </button>
+                        </div>
+
+                        <button onclick="resetTimer()" class="w-full py-2 bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-bold rounded-xl border border-slate-700/60 transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                            <span>إعادة ضبط الوقت</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Recent Played Words Bar -->
+        <section class="bg-slate-900/60 rounded-2xl p-4 border border-slate-800/80">
+            <h3 class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-history text-purple-400"></i>
+                <span>الكلمات السابقة في هذا المجلس:</span>
+            </h3>
+            <div id="historyList" class="flex flex-wrap gap-2 text-xs">
+                <span class="text-slate-500 italic">لا توجد كلمات سابقة بعد</span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rules Modal Container -->
+    <div id="rulesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            
+            <button onclick="toggleRulesModal()" class="absolute top-4 left-4 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-gavel"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">قوانين ورشادات لعبة "ولا كلمة"</h3>
+                    <p class="text-xs text-slate-400">التزموا بالقواعد لضمان حماسية اللعبة!</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+                <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
+                    <h4 class="font-bold text-amber-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-volume-xmark"></i> الممنوعات المطلقة:</h4>
+                    <ul class="list-disc list-inside text-xs space-y-1 text-slate-300">
+                        <li>يمنع الكلام أو إخراج أي صوت إطلاقاً (حتى الهمس ممنوع).</li>
+                        <li>يمنع تحريك الشفاه بكتابة الكلمات في الهوا.</li>
+                        <li>يمنع الإشارة إلى أشياء في الغرفة تُظهر الاسم مباشرة.</li>
+                    </ul>
+                </div>
+
+                <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
+                    <h4 class="font-bold text-indigo-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-hand text-xs"></i> الإشارات المسموحة والمُتفق عليها:</h4>
+                    <ul class="list-disc list-inside text-xs space-y-1 text-slate-300">
+                        <li><strong>عدد الكلمات:</strong> إبراز عدد الأصابع للإشارة لعدد كلمات الجملة.</li>
+                        <li><strong>رقم الكلمة المراد تمثيلها:</strong> إبراز عدد الأصابع ثم البدء بتمثيل تلك الكلمة.</li>
+                        <li><strong>فيلم / مسرحية / أغنية:</strong> إشارات متعارف عليها (مثل تدوير اليدين لكاميرا الفيلم).</li>
+                        <li><strong>مترادفات / قريب من المعنى:</strong> وضع الأصابع قريبة من بعضها.</li>
+                    </ul>
+                </div>
+
+                <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700/50">
+                    <h4 class="font-bold text-emerald-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-trophy"></i> احتساب النقاط:</h4>
+                    <p class="text-xs">إذا عرف الفريق الكلمة قبل انتهاء الوقت يحصل على نقطة، وإذا انتهى الوقت تنتقل النقطة أو الدور للفريق الآخر حسب اتفاقكم.</p>
+                </div>
+            </div>
+
+            <button onclick="toggleRulesModal()" class="w-full mt-5 bg-purple-600 hover:bg-purple-500 text-white font-bold py-2.5 rounded-xl transition">
+                فهمت القوانين، لنبدأ!
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-slate-900 py-3 text-center text-xs text-slate-500">
+        لعبة ولا كلمة التفاعلية &copy; 2026 - سهرة ممتعة مع أصدقائك وعائلتك 🎭
+    </footer>
+
+    <script>
+        // Comprehensive categorized dictionary for Charades
+        const wordBank = {
+            movies: {
+                easy: [
+                    "مدرسة المشاغبين", "الناظر", "تيمون وبومبا", "صعيدي في الجامعة الأمريكية", 
+                    "طاش ما طاش", "باب الحارة", "الكبير أوي", "فول الصين العظيم"
+                ],
+                medium: [
+                    "عسل أسود", "الجزيرة", "حلم عزيز", "طير إنت", "شمس الزناتي", 
+                    "التوربيني", "رسالة إلى الوالي", "إكس لارج", "شباب البومب"
+                ],
+                hard: [
+                    "تراب الماس", "الفيل الأزرق", "عمارة يعقوبيان", "غزل البنات", 
+                    "أمير الظلام", "المصير", "سهر الليالي", "ولاد رزق"
+                ]
+            },
+            proverbs: {
+                easy: [
+                    "عصفور في اليد ولا عشرة على الشجرة", "القرود في عين أمه غزال", 
+                    "الوقت من ذهب", "العلم نور", "اليد الواحدة لا تصفق"
+                ],
+                medium: [
+                    "من شابه أبه فما ظلم", "من طلب العلا سهر الليالي", 
+                    "اللسان حصانك إن صنته صانك", "اللي بيته من زجاج لا يرمي الناس بالحجارة",
+                    "رب ضارة نافعة"
+                ],
+                hard: [
+                    "إذا كان حبيبك عسل لا تأكله كله", "أول الغيث قطرة", 
+                    "تمخض الجبل فولد فاراً", "لكل جواد كبوة", "تجري الرياح بما لا تشتكي السفن"
+                ]
+            },
+            jobs: {
+                easy: [
+                    "طبيب أسنان", "شرطي مرور", "طباخ ماهر", "حارس مرمى", 
+                    "طيار مدني", "معلم مدرسة", "مصور فوتوغرافي"
+                ],
+                medium: [
+                    "رجل إطفاء", "رائد فضاء", "مهندس بناء", "غواص أعماق", 
+                    "مكياج سينمائي", "حلاق رجالي", "رسام كاريكاتير"
+                ],
+                hard: [
+                    "جراح ق any القلب", "مفتش آثار", "مخرج سينمائي", "قاضي بالمحكمة", 
+                    "عالم فلك", "خبير أدلة جنائية"
+                ]
+            },
+            actions: {
+                easy: [
+                    "قيادة سيارة مسرعة", "ركوب الخيل", "صيد الأسماك", 
+                    "لعب كرة القدم", "شرب القهوة الساخنة", "النوم وأنت واقف"
+                ],
+                medium: [
+                    "تسلق جبل عالي", "القفز بالمظلة", "البحث عن مفتاح مفقود", 
+                    "تغيير إطار السيارة", "رسم لوحة فنية", "الهروب من الكلب"
+                ],
+                hard: [
+                    "محاولة إشعال نار بالحطب", "تجميع مكعب روبيك", "ربط كرافتة أمام المرآة", 
+                    "إصلاح مكيف الهواء", "تصفح الهاتف في الظلام"
+                ]
+            },
+            objects: {
+                easy: [
+                    "ساعة يد", "نظارة شمسية", "هاتف محمول", "طائرة ورقية", 
+                    "فرشاة أسنان", "كرسي متحرك"
+                ],
+                medium: [
+                    "ماكينة خياطة", "مظلة مطر", "سماعات أذن لاسلكية", 
+                    "مجهر مكبر", "خزنة مقفلة", "عكاز للمشي"
+                ],
+                hard: [
+                    "بوصلة اتجاهات", "طابعة ثلاثية الأبعاد", "آلة حاسبة قديمة", 
+                    "جهاز إنذار الحريق", "منظار مكبر"
+                ]
+            }
+        };
+
+        // Game State Variables
+        let currentCategory = 'all';
+        let currentDifficulty = 'medium';
+        let scoreA = 0;
+        let scoreB = 0;
+        let currentRound = 1;
+        let activeTeam = 'A'; // 'A' or 'B'
+        let currentWord = '';
+        let isCardBlurred = true;
+        let history = [];
+
+        // Timer Variables
+        let timerDuration = 90; // Default 90 seconds
+        let timeLeft = 90;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        // Web Audio API context for sound effects without external audio files
+        let audioCtx = null;
+
+        function playSound(type) {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'tick') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'alarm') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch (e) {
+                console.log("Audio not supported or blocked");
+            }
+        }
+
+        function changeScore(team, delta) {
+            if (team === 'A') {
+                scoreA = Math.max(0, scoreA + delta);
+                document.getElementById('scoreA').textContent = scoreA;
+            } else {
+                scoreB = Math.max(0, scoreB + delta);
+                document.getElementById('scoreB').textContent = scoreB;
+            }
+            if (delta > 0) playSound('success');
+        }
+
+        function changeRound(delta) {
+            currentRound = Math.max(1, currentRound + delta);
+            document.getElementById('currentRound').textContent = currentRound;
+        }
+
+        function setTurn(team) {
+            activeTeam = team;
+            const cardA = document.getElementById('cardTeamA');
+            const cardB = document.getElementById('cardTeamB');
+            const indA = document.getElementById('activeIndicatorA');
+            const indB = document.getElementById('activeIndicatorB');
+            const badge = document.getElementById('turnBadge');
+            const nameA = document.getElementById('nameTeamA').value || 'الفريق الأول';
+            const nameB = document.getElementById('nameTeamB').value || 'الفريق الثاني';
+
+            if (team === 'A') {
+                cardA.classList.add('glow-a', 'border-blue-500');
+                cardB.classList.remove('glow-b', 'border-pink-500');
+                indA.classList.remove('hidden');
+                indB.classList.add('hidden');
+                badge.textContent = `دور: ${nameA}`;
+                badge.className = "mt-2 text-xs px-3 py-1 rounded-full font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30";
+            } else {
+                cardB.classList.add('glow-b', 'border-pink-500');
+                cardA.classList.remove('glow-a', 'border-blue-500');
+                indB.classList.remove('hidden');
+                indA.classList.add('hidden');
+                badge.textContent = `دور: ${nameB}`;
+                badge.className = "mt-2 text-xs px-3 py-1 rounded-full font-bold bg-pink-500/20 text-pink-300 border border-pink-500/30";
+            }
+        }
+
+        function updateTeamNames() {
+            setTurn(activeTeam);
+        }
+
+        function setDifficulty(diff) {
+            currentDifficulty = diff;
+            const btnEasy = document.getElementById('diffEasy');
+            const btnMedium = document.getElementById('diffMedium');
+            const btnHard = document.getElementById('diffHard');
+            const badge = document.getElementById('difficultyBadge');
+
+            [btnEasy, btnMedium, btnHard].forEach(b => b.className = "px-3 py-1 rounded-lg transition text-slate-400");
+
+            if (diff === 'easy') {
+                btnEasy.className = "px-3 py-1 rounded-lg text-emerald-400 font-bold bg-slate-700 shadow";
+                badge.textContent = "سهل";
+                badge.className = "absolute top-4 left-4 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs px-3 py-1 rounded-full font-bold";
+            } else if (diff === 'medium') {
+                btnMedium.className = "px-3 py-1 rounded-lg text-amber-400 font-bold bg-slate-700 shadow";
+                badge.textContent = "متوسط";
+                badge.className = "absolute top-4 left-4 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs px-3 py-1 rounded-full font-bold";
+            } else {
+                btnHard.className = "px-3 py-1 rounded-lg text-rose-400 font-bold bg-slate-700 shadow";
+                badge.textContent = "صعب";
+                badge.className = "absolute top-4 left-4 bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs px-3 py-1 rounded-full font-bold";
+            }
+        }
+
+        document.getElementById('categorySelect').addEventListener('change', (e) => {
+            currentCategory = e.target.value;
+        });
+
+        function drawNewCard() {
+            let availableCategories = [];
+            if (currentCategory === 'all') {
+                availableCategories = Object.keys(wordBank);
+            } else {
+                availableCategories = [currentCategory];
+            }
+
+            // Pick random category from selected pool
+            const randomCatKey = availableCategories[Math.floor(Math.random() * availableCategories.length)];
+            const wordList = wordBank[randomCatKey][currentDifficulty];
+
+            if (!wordList || wordList.length === 0) return;
+
+            const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+            currentWord = randomWord;
+
+            // Update UI
+            document.getElementById('cardWord').textContent = randomWord;
+            
+            // Map category name to Arabic label
+            const categoryNames = {
+                movies: "🎬 أفلام ومسلسلات",
+                proverbs: "📜 أمثال وأقوال",
+                jobs: "👷‍♂️ مهن وشخصيات",
+                actions: "🏃‍♂️ أفعال وأنشطة",
+                objects: "📦 أشياء وأدوات"
+            };
+            
+            document.getElementById('cardBadge').textContent = categoryNames[randomCatKey] || "عام";
+            document.getElementById('cardHint').textContent = "انقر فوق المستطيل لإظهار/إخفاء الكلمة للممثل";
+
+            // Reset blur state to hidden for secrecy
+            hideWord();
+
+            // Add to history
+            addToHistory(randomWord, categoryNames[randomCatKey]);
+
+            // Automatically reset timer for convenience
+            resetTimer();
+        }
+
+        function toggleBlur() {
+            if (!currentWord || currentWord === 'انقر "بطاقة جديدة"') return;
+            if (isCardBlurred) {
+                showWord();
+            } else {
+                hideWord();
+            }
+        }
+
+        function showWord() {
+            isCardBlurred = false;
+            const blurWrapper = document.getElementById('blurWrapper');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const eyeText = document.getElementById('eyeText');
+
+            blurWrapper.classList.remove('blur-card');
+            blurWrapper.classList.add('unblur-card');
+            eyeIcon.className = "fa-solid fa-eye-slash";
+            eyeText.textContent = "اضغط لإخفاء الكلمة";
+        }
+
+        function hideWord() {
+            isCardBlurred = true;
+            const blurWrapper = document.getElementById('blurWrapper');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const eyeText = document.getElementById('eyeText');
+
+            blurWrapper.classList.add('blur-card');
+            blurWrapper.classList.remove('unblur-card');
+            eyeIcon.className = "fa-solid fa-eye";
+            eyeText.textContent = "اضغط لإظهار الكلمة (للممثل فقط)";
+        }
+
+        function addToHistory(word, category) {
+            history.unshift({ word, category });
+            if (history.length > 8) history.pop();
+
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = history.map(item => `
+                <span class="bg-slate-800 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                    <span class="font-bold">${item.word}</span>
+                    <span class="text-[10px] text-slate-400">(${item.category.split(' ')[1] || item.category})</span>
+                </span>
+            `).join('');
+        }
+
+        function setTimerDuration(seconds) {
+            timerDuration = seconds;
+            timeLeft = seconds;
+            
+            document.querySelectorAll('.durationBtn').forEach(btn => {
+                if (parseInt(btn.getAttribute('data-time')) === seconds) {
+                    btn.className = "px-2.5 py-1 rounded font-bold text-white bg-indigo-600 durationBtn";
+                } else {
+                    btn.className = "px-2.5 py-1 rounded font-bold text-slate-300 hover:bg-slate-700 durationBtn";
+                }
+            });
+
+            resetTimer();
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('timerDisplay').textContent = formatted;
+
+            // SVG Circle Progress (Total dasharray is ~263.89 for radius 42)
+            const progressCircle = document.getElementById('timerProgress');
+            const totalDash = 263.89;
+            const percentage = timeLeft / timerDuration;
+            const dashoffset = totalDash * (1 - percentage);
+            progressCircle.style.strokeDashoffset = dashoffset;
+
+            // Color warning when low time
+            if (timeLeft <= 10) {
+                progressCircle.style.stroke = "#EF4444"; // Red
+                document.getElementById('timerDisplay').classList.add('text-red-500', 'animate-pulse');
+            } else if (timeLeft <= 25) {
+                progressCircle.style.stroke = "#F59E0B"; // Yellow/Amber
+                document.getElementById('timerDisplay').classList.remove('text-red-500', 'animate-pulse');
+            } else {
+                progressCircle.style.stroke = "#6366F1"; // Indigo
+                document.getElementById('timerDisplay').classList.remove('text-red-500', 'animate-pulse');
+            }
+        }
+
+        function toggleTimer() {
+            if (isTimerRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (timeLeft <= 0) return;
+            isTimerRunning = true;
+            document.getElementById('playIcon').className = "fa-solid fa-pause";
+            document.getElementById('playText').textContent = "إيقاف مؤقت";
+            document.getElementById('timerStatus').textContent = "جارٍ التنازلي...";
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 5 && timeLeft > 0) {
+                    playSound('tick');
+                }
+
+                if (timeLeft <= 0) {
+                    pauseTimer();
+                    playSound('alarm');
+                    document.getElementById('timerStatus').textContent = "⏰ انتهى الوقت!";
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('playIcon').className = "fa-solid fa-play";
+            document.getElementById('playText').textContent = "تشغيل";
+            if (timeLeft > 0) {
+                document.getElementById('timerStatus').textContent = "متوقف مؤقتاً";
+            }
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeLeft = timerDuration;
+            document.getElementById('timerStatus').textContent = "جاهز للبدء";
+            updateTimerDisplay();
+        }
+
+        function adjustTime(seconds) {
+            timeLeft = Math.max(0, timeLeft + seconds);
+            updateTimerDisplay();
+        }
+
+        function toggleRulesModal() {
+            const modal = document.getElementById('rulesModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function resetWholeGame() {
+            scoreA = 0;
+            scoreB = 0;
+            currentRound = 1;
+            history = [];
+            document.getElementById('scoreA').textContent = '0';
+            document.getElementById('scoreB').textContent = '0';
+            document.getElementById('currentRound').textContent = '1';
+            document.getElementById('historyList').innerHTML = '<span class="text-slate-500 italic">لا توجد كلمات سابقة بعد</span>';
+            document.getElementById('cardWord').textContent = 'انقر "بطاقة جديدة"';
+            document.getElementById('cardHint').textContent = 'اضغط للحصول على الكلمة المراد تمثيلها';
+            resetTimer();
+            setTurn('A');
+        }
+
+        // Initialize state on window load
+        window.onload = function() {
+            setTurn('A');
+            setDifficulty('medium');
+            updateTimerDisplay();
+        };
+    </script>
+</body>
+</html>
