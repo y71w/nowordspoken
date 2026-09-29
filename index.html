@@ -195,7 +195,10 @@
                         <label class="text-xs font-bold text-slate-400 whitespace-nowrap"><i class="fa-solid fa-tags text-purple-400 ml-1"></i>القسم:</label>
                         <select id="categorySelect" class="bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-3 py-2 w-full focus:outline-none focus:border-purple-500">
                             <option value="all">🔀 كل الأقسام</option>
-                            <option value="movies">🎬 أفلام ومسلسلات</option>
+                            <option value="anime">⛩️ مسلسلات أنمي</option>
+                            <option value="anime_chars">🥷 شخصيات أنمي</option>
+                            <option value="english_shows">🎬 أفلام ومسلسلات أجنبية</option>
+                            <option value="movies">📺 أفلام ومسلسلات عربية</option>
                             <option value="proverbs">📜 أمثال وأقوال</option>
                             <option value="jobs">👷‍♂️ مهن وشخصيات</option>
                             <option value="actions">🏃‍♂️ أفعال وأنشطة</option>
@@ -344,7 +347,7 @@
                     <i class="fa-solid fa-gavel"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-white">قوانين ورشادات لعبة "ولا كلمة"</h3>
+                    <h3 class="text-lg font-bold text-white">قوانين وإرشادات لعبة "ولا كلمة"</h3>
                     <p class="text-xs text-slate-400">التزموا بالقواعد لضمان حماسية اللعبة!</p>
                 </div>
             </div>
@@ -354,7 +357,7 @@
                     <h4 class="font-bold text-amber-400 mb-1 flex items-center gap-2"><i class="fa-solid fa-volume-xmark"></i> الممنوعات المطلقة:</h4>
                     <ul class="list-disc list-inside text-xs space-y-1 text-slate-300">
                         <li>يمنع الكلام أو إخراج أي صوت إطلاقاً (حتى الهمس ممنوع).</li>
-                        <li>يمنع تحريك الشفاه بكتابة الكلمات في الهوا.</li>
+                        <li>يمنع تحريك الشفاه بكتابة الكلمات في الهواء.</li>
                         <li>يمنع الإشارة إلى أشياء في الغرفة تُظهر الاسم مباشرة.</li>
                     </ul>
                 </div>
@@ -389,6 +392,50 @@
     <script>
         // Comprehensive categorized dictionary for Charades
         const wordBank = {
+            anime: {
+                easy: [
+                    "هجوم العمالقة", "ون بيس", "ناروتو", "دراغون بول", "القناص (Hunter x Hunter)",
+                    "المحقق كونان", "أكاديمية بطلتي (My Hero Academia)", "أبطال الديجيتال", "سبيستون"
+                ],
+                medium: [
+                    "قاتل الشياطين (Demon Slayer)", "جوجوتسو كايسن (Jujutsu Kaisen)", "مذكرة الموت (Death Note)",
+                    "بليتش (Bleach)", "الخادم الأسود (Black Butler)", "توكيو غول (Tokyo Ghoul)", "سولو ليفلينج (Solo Leveling)"
+                ],
+                hard: [
+                    "ستينز جيت (Steins;Gate)", "مونستر (Monster)", "فينلاند ساغا (Vinland Saga)",
+                    "كود جياس (Code Geass)", "سايكو باس (Psycho-Pass)", "نيون جينيسيس إيفانجيليون"
+                ]
+            },
+            anime_chars: {
+                easy: [
+                    "مونكي دي لوفي", "ناروتو أوزوماكي", "ساسكي أوتشيها", "سون غوكو",
+                    "رورونوا زورو", "ليفاي آكرمان", "إيتاشي أوتشيها", "المحقق كونان"
+                ],
+                medium: [
+                    "غوجو ساتورو", "إيرين ييغر", "كيلوا زولديك", "مادارا أوتشيها",
+                    "كوروساكي إيتشيجو", "هيسوكا", "كاكاشي هاتاكي", "ريومين سوكونا"
+                ],
+                hard: [
+                    "إل (L)", "لايت ياغامي", "ماكيما", "غوهان",
+                    "ألفريدو", "غريفيث (Griffith)", "يوهان ليبرت", "ميرويم"
+                ]
+            },
+            english_shows: {
+                easy: [
+                    "ديكستر (Dexter)", "الشباب (The Boys)", "بريكينج باد (Breaking Bad)",
+                    "سيد الخواتم (Lord of the Rings)", "الجوكر (Joker)", "صراع العروش (Game of Thrones)",
+                    "باتمان (Batman)", "الرجل الحديدي (Iron Man)"
+                ],
+                medium: [
+                    "أشياء غريبة (Stranger Things)", "تلقين (Inception)", "العرّاب (The Godfather)",
+                    "الماتريكس (The Matrix)", "بيكي بلايندرز (Peaky Blinders)", "بين النجوم (Interstellar)"
+                ],
+                hard: [
+                    "خلاص شووشانك (Shawshank Redemption)", "اتصل بهول بيتر (Better Call Saul)",
+                    "أوبنهايمر (Oppenheimer)", "شيرلوك (Sherlock)", "نادي القتال (Fight Club)",
+                    "جزيرة شاتر (Shutter Island)", "الهروب من السجن (Prison Break)"
+                ]
+            },
             movies: {
                 easy: [
                     "مدرسة المشاغبين", "الناظر", "تيمون وبومبا", "صعيدي في الجامعة الأمريكية", 
@@ -428,7 +475,7 @@
                     "مكياج سينمائي", "حلاق رجالي", "رسام كاريكاتير"
                 ],
                 hard: [
-                    "جراح ق any القلب", "مفتش آثار", "مخرج سينمائي", "قاضي بالمحكمة", 
+                    "جراح قلب", "مفتش آثار", "مخرج سينمائي", "قاضي بالمحكمة", 
                     "عالم فلك", "خبير أدلة جنائية"
                 ]
             },
@@ -622,7 +669,10 @@
             
             // Map category name to Arabic label
             const categoryNames = {
-                movies: "🎬 أفلام ومسلسلات",
+                anime: "⛩️ مسلسلات أنمي",
+                anime_chars: "🥷 شخصيات أنمي",
+                english_shows: "🎬 أفلام ومسلسلات أجنبية",
+                movies: "📺 أفلام ومسلسلات عربية",
                 proverbs: "📜 أمثال وأقوال",
                 jobs: "👷‍♂️ مهن وشخصيات",
                 actions: "🏃‍♂️ أفعال وأنشطة",
@@ -709,7 +759,7 @@
             const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             document.getElementById('timerDisplay').textContent = formatted;
 
-            // SVG Circle Progress (Total dasharray is ~263.89 for radius 42)
+            // SVG Circle Progress
             const progressCircle = document.getElementById('timerProgress');
             const totalDash = 263.89;
             const percentage = timeLeft / timerDuration;
