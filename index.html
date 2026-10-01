@@ -195,6 +195,8 @@
                         <label class="text-xs font-bold text-slate-400 whitespace-nowrap"><i class="fa-solid fa-tags text-purple-400 ml-1"></i>القسم:</label>
                         <select id="categorySelect" class="bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-3 py-2 w-full focus:outline-none focus:border-purple-500">
                             <option value="all">🔀 كل الأقسام</option>
+                            <option value="youtube">▶️ يوتيوبر وصناع محتوى</option>
+                            <option value="football">⚽ لاعبو وأندية كرة القدم</option>
                             <option value="anime">⛩️ مسلسلات أنمي</option>
                             <option value="anime_chars">🥷 شخصيات أنمي</option>
                             <option value="english_shows">🎬 أفلام ومسلسلات أجنبية</option>
@@ -206,10 +208,6 @@
                             <option value="arabic_tricky">🧠 كلمات عربية tricky</option>
                             <option value="movies_extra">🍿 أفلام إضافية</option>
                             <option value="anime_extra">✨ أنمي إضافي</option>
-                            <option value="football_players">⚽ لاعبو كرة القدم</option>
-                            <option value="ufc_fighters">🥊 مقاتلو UFC</option>
-                            <option value="arab_youtubers">📺 يوتيوبرز عرب</option>
-                            <option value="global_youtubers">🌎 يوتيوبرز عالميون</option>
                         </select>
                     </div>
 
@@ -399,6 +397,34 @@
     <script>
         // Comprehensive categorized dictionary for Charades
         const wordBank = {
+            youtube: {
+                easy: [
+                    "مستر بيست (MrBeast)", "أبو فلة (AboFlah)", "بندريتا (BanderitaX)", "سيد (Arab Games Network)", 
+                    "انس واصالة", "نور ستارز", "بيودي باي (PewDiePie)", "دحومي 99"
+                ],
+                medium: [
+                    "الدحيح", "عمر فاروق", "ابو روب", "جو حطاب", 
+                    "ابراهيم السويلم", "سبوكي (Spooky)", "باري تيوب", "توبز (Topz)"
+                ],
+                hard: [
+                    "ماركيز براونلي (MKBHD)", "ايشو (IshowSpeed)", "كاي سينات (Kai Cenat)", 
+                    "كوستافو", "مستشار التدريب", "شبكة ألعاب العرب", "دراغون بول زاد العربي"
+                ]
+            },
+            football: {
+                easy: [
+                    "كريستيانو رونالدو", "ليونيل ميسي", "محمد صلاح", "نيمار داسيلفا", 
+                    "ريال مدريد", "برشلونة", "نادي الهلال", "نادي النصر"
+                ],
+                medium: [
+                    "كيليان إمبابي", "إرلينغ هالاند", "لوكا مودريتش", "كريم بنزيما", 
+                    "مانشستر سيتي", "بايرن ميونخ", "نادي الاتحاد", "نادي الأهلي"
+                ],
+                hard: [
+                    "زين الدين زيدان", "رونالدينيو", "توني كروس", "كيفين دي بروين", 
+                    "أنطوان غريزمان", "برونو فيرنانديز", "أرسنال", "بروسيا دورتموند"
+                ]
+            },
             anime: {
                 easy: [
                     "هجوم العمالقة", "ون بيس", "ناروتو", "دراغون بول", "القناص (Hunter x Hunter)",
@@ -513,9 +539,7 @@
                     "بوصلة اتجاهات", "طابعة ثلاثية الأبعاد", "آلة حاسبة قديمة", 
                     "جهاز إنذار الحريق", "منظار مكبر"
                 ]
-            }
-
-            // Expanded content packs
+            },
             arabic_tricky: {
                 easy: [
                     "مراوغة", "مفاجأة", "مظلة", "بوصلة", "مغناطيس", "منظار", "مصفاة",
@@ -570,88 +594,6 @@
                     "غريموار أوف زيرو", "أكوداما درايف"
                 ]
             }
-
-
-            football_players: {
-                easy: [
-                    "ليونيل ميسي", "كريستيانو رونالدو", "نيمار", "محمد صلاح", "كيليان مبابي",
-                    "فينيسيوس جونيور", "إيرلينغ هالاند", "جود بيلينغهام", "لامين يامال",
-                    "روبرت ليفاندوفسكي", "كيفن دي بروين", "لوكا مودريتش", "سون هيونغ مين",
-                    "سالم الدوسري", "رياض محرز", "أشرف حكيمي", "سفيان بوفال", "حكيم زياش"
-                ],
-                medium: [
-                    "رودري", "بوكايو ساكا", "فيل فودين", "برونو فرنانديز", "أنطوان غريزمان",
-                    "جمال موسيالا", "فلوريان فيرتز", "كول بالمر", "رافاييل لياو", "برناردو سيلفا",
-                    "ألفونسو ديفيز", "ثيو هيرنانديز", "فيرجيل فان دايك", "ترينت ألكسندر أرنولد",
-                    "جوليان ألفاريز", "لاوتارو مارتينيز", "إدواردو كامافينغا", "فالفيردي"
-                ],
-                hard: [
-                    "رونالدينيو", "زين الدين زيدان", "تييري هنري", "أندريس إنييستا",
-                    "تشافي هيرنانديز", "كاكا", "رونالدو نازاريو", "روبرتو كارلوس",
-                    "أندريا بيرلو", "فرانشيسكو توتي", "سيرجيو راموس", "تشابي ألونسو",
-                    "ديدييه دروغبا", "صامويل إيتو", "يايا توريه", "نغولو كانتي",
-                    "ديفيد بيكهام", "ستيفن جيرارد"
-                ]
-            },
-            ufc_fighters: {
-                easy: [
-                    "كونور ماكغريغور", "خبيب نورمحمدوف", "جُون جونز", "إسرائيل أديسانيا",
-                    "أليكس بيريرا", "نات دياز", "ماكس هولواي", "جورج سانت بيير",
-                    "أماندا نونيز", "روندا راوزي", "إلياس توبوريا", "داستن بورييه"
-                ],
-                medium: [
-                    "ديميتريوس جونسون", "فالنتينا شيفتشينكو", "ألكسندر فولكانوفسكي",
-                    "ليون إدواردز", "أليستر أوفريم", "ستيب ميوتشيتش", "روبرت ويتاكر",
-                    "شون أومالي", "تشارلز أوليفيرا", "جاستن غيثجي", "خوسيه ألدو",
-                    "فرانسيس نغانو"
-                ],
-                hard: [
-                    "دانيال كورمييه", "أندرسون سيلفا", "خوسيه ألدو", "فرانكي إدغار",
-                    "دومينيك كروز", "يوئيل روميرو", "جان بلاخوفيتش", "بيتر يان",
-                    "ميراب دفاليشفيلي", "ليون إدواردز", "أليكسندر فولكوف", "توم أسبينال"
-                ]
-            },
-            arab_youtubers: {
-                easy: [
-                    "TMFaisal", "oCMz", "RedFox", "بندريتاX", "أبو فلة", "أنس بوخش",
-                    "نور ستارز", "هيلا غزال", "أسامة مروة", "نارين بيوتي", "بيسان إسماعيل",
-                    "شادي سرور", "جو حطاب", "أحمد أبو الرب", "عصام ونور", "عائلة مشيع",
-                    "سوار شعيب", "دحومي999", "مصعب المالكي", "مجرم قيمز"
-                ],
-                medium: [
-                    "عمر فاروق", "الدحيح", "إياد القنيبي", "أحمد الشقيري", "أحمد البشير",
-                    "بندريتا", "فيصل السيف", "سعودي ريبورترز", "مهاوش", "أبو حيدر",
-                    "صالح العجيري", "محمود ماهر", "إيجيكولوجي", "جو شو", "فريق النحش",
-                    "عائلة عدنان", "مشعل الجاسر", "مساعد الدوسري", "حسنين هيكل"
-                ],
-                hard: [
-                    "أبو راني", "صخر", "أسامة الزيرو", "أخضر", "دروس أونلاين",
-                    "أكاديمية التحرير", "المخبر الاقتصادي", "إيجيكولوجي", "سينماوي",
-                    "عمر حسين", "حسين عبد الرضا", "محمد مشيع", "أنس وأصالة", "قناة فاصلة",
-                    "الجزيرة الوثائقية", "ثمانية", "ثمانية أسئلة", "بودكاست فنجان"
-                ]
-            },
-            global_youtubers: {
-                easy: [
-                    "MrBeast", "KSI", "Kai Cenat", "PewDiePie", "Markiplier", "Jacksepticeye",
-                    "Logan Paul", "Jake Paul", "Dude Perfect", "Ryan's World", "Like Nastya",
-                    "DanTDM", "Dream", "Ninja", "IShowSpeed", "CaseOh", "Sidemen",
-                    "Valkyrae", "Pokimane", "LazarBeam"
-                ],
-                medium: [
-                    "Technoblade", "TommyInnit", "GeorgeNotFound", "Sapnap", "Quackity",
-                    "MrBeast Gaming", "Mark Rober", "Airrack", "Zach King", "Brent Rivera",
-                    "Alan Chikin Chow", "Stokes Twins", "Unspeakable", "SSSniperWolf",
-                    "Mo Vlogs", "FaZe Rug", "Faze Clan", "AMP", "Adin Ross", "HasanAbi"
-                ],
-                hard: [
-                    "Casey Neistat", "Marques Brownlee", "Emma Chamberlain", "Philip DeFranco",
-                    "Dhar Mann", "Niko Omilana", "Chunkz", "Beta Squad", "IShowSpeed",
-                    "CoryxKenshin", "TheGrefg", "Ibai Llanos", "ElRubius", "PewDiePie",
-                    "Smash Mouth", "HowToBasic", "Jacksfilms", "The Sidemen", "Colin Furze"
-                ]
-            }
-
         };
 
         // Game State Variables
@@ -814,6 +756,8 @@
             
             // Map category name to Arabic label
             const categoryNames = {
+                youtube: "▶️ يوتيوبر وصناع محتوى",
+                football: "⚽ لاعبو وأندية كرة القدم",
                 anime: "⛩️ مسلسلات أنمي",
                 anime_chars: "🥷 شخصيات أنمي",
                 english_shows: "🎬 أفلام ومسلسلات أجنبية",
@@ -824,11 +768,7 @@
                 objects: "📦 أشياء وأدوات",
                 arabic_tricky: "🧠 كلمات عربية tricky",
                 movies_extra: "🍿 أفلام إضافية",
-                anime_extra: "✨ أنمي إضافي",
-                football_players: "⚽ لاعبو كرة القدم",
-                ufc_fighters: "🥊 مقاتلو UFC",
-                arab_youtubers: "📺 يوتيوبرز عرب",
-                global_youtubers: "🌎 يوتيوبرز عالميون"
+                anime_extra: "✨ أنمي إضافي"
             };
             
             document.getElementById('cardBadge').textContent = categoryNames[randomCatKey] || "عام";
@@ -911,7 +851,7 @@
             const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             document.getElementById('timerDisplay').textContent = formatted;
 
-            // SVG Circle Progress
+            // SVG Circle Progress (Total dasharray is ~263.89 for radius 42)
             const progressCircle = document.getElementById('timerProgress');
             const totalDash = 263.89;
             const percentage = timeLeft / timerDuration;
